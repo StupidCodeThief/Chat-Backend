@@ -27,14 +27,14 @@ const io = useSocket(server, {
 app.use(cors());
 app.use(express.json({ extended: false }));
 
-sequelize.authenticate().then(() => {
-  console.log("DB connected");
-});
-
 app.use("/api/auth", auth);
 
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
+  sequelize.authenticate().then(() => {
+    console.log("DB connected");
+  });
+
   console.log(`Server runnig at: ${PORT}`);
 });
