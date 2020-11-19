@@ -1,5 +1,8 @@
 const express = require("express");
 const useSocket = require("socket.io");
+const cors = require("cors");
+
+const sequelize = require("./database");
 
 const auth = require("./api/routes/auth");
 
@@ -21,7 +24,12 @@ const io = useSocket(server, {
   },
 });
 
+app.use(cors());
 app.use(express.json({ extended: false }));
+
+sequelize.authenticate().then(() => {
+  console.log("DB connected");
+});
 
 app.use("/api/auth", auth);
 

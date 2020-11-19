@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const config = require("config");
 
+const { authService } = require("../services");
+
 const {
   validateLoginData,
   validateRegisterData,
@@ -13,10 +15,11 @@ const login = async (req, res) => {
     const errors = validateLoginData(email, password);
 
     if (Object.keys(errors).length > 0) {
-      res.json(errors);
-    } else {
-      res.json({ email, password, authorized: true });
+      return res.json(errors);
     }
+
+    const response = await authService.login(req.body);
+    res.status(201).send(response);
   } catch (error) {
     console.error(error);
     res.json(error);
@@ -30,10 +33,11 @@ const register = async (req, res) => {
     const errors = validateRegisterData(username, email, password);
 
     if (Object.keys(errors).length > 0) {
-      res.json(errors);
-    } else {
-      res.json({ email, password, authorized: true, registered: true });
+      return res.status(400).json(errors);
     }
+
+    const response = await authService.register(req.body);
+    res.status(201).send(response);
   } catch (error) {
     console.error(error);
   }

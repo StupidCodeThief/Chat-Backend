@@ -60,7 +60,7 @@ const validateRegisterData = (username, email, password) => {
 
   if (passwordValidate.error) {
     if (passwordValidate.error.details[0].context.regex) {
-      errors.passwor = "Password must include at least one didgit";
+      errors.password = "Password must include at least one didgit";
     } else {
       errors.password = passwordValidate.error.details[0].message.replace(
         `"value"`,
