@@ -1,11 +1,15 @@
-const openConnection = (socket) => {
-  console.log(`User connected ${socket.id}`);
+const { roomService } = require("../services");
 
-  socket.on("message", (data) => {
-    console.log(data);
-
-    socket.send(`Got message: ${data}`);
-  });
+const connectToRoom = async (req, res) => {
+  try {
+    const response = await roomService.connectRoom(
+      ({ roomId, password, email } = req.body)
+    );
+    res.status(201).send(response);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server error");
+  }
 };
 
-module.exports = { openConnection };
+module.exports = { connectToRoom };

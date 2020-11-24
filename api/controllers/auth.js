@@ -1,12 +1,8 @@
-const bcrypt = require("bcryptjs");
-const config = require("config");
-
 const { authService } = require("../services");
 
 const {
   validateLoginData,
   validateRegisterData,
-  validateTokenData,
 } = require("../validation/auth");
 
 const login = async (req, res) => {

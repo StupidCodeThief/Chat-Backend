@@ -5,8 +5,7 @@ const useSocket = require("socket.io");
 const sequelize = require("./database");
 
 const auth = require("./api/routes/auth");
-const chatRoom = require("./api/controllers/chatRoom");
-const { openConnection } = require("./api/controllers/chatRoom");
+const chatRoom = require("./api/routes/chatRoom");
 
 const app = express();
 const server = require("http").Server(app);
@@ -30,6 +29,7 @@ app.use(cors());
 app.use(express.json({ extended: false }));
 
 app.use("/api/auth", auth);
+app.use("/api", chatRoom)
 
 io.on("connection", (socket) => {
   // openConnection(socket)

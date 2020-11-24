@@ -1,10 +1,10 @@
-// const express = require("express");
+const express = require("express");
 
-// const router = express.Router();
+const router = express.Router();
 
-// const { openConnection } = require("../controllers/chatRoom");
-// const jwtGuard = require("../middlewares/jwtGuard");
+const { connectToRoom } = require("../controllers/chatRoom");
+const jwtGuard = require("../middlewares/jwtGuard");
 
-// router.get("/room", openConnection);
+router.post("/room", connectToRoom);
 
-// module.exports = router;
+module.exports = router;
