@@ -6,7 +6,7 @@ const { authService } = require("../services");
 const {
   validateLoginData,
   validateRegisterData,
-  validateTokenData
+  validateTokenData,
 } = require("../validation/auth");
 
 const login = async (req, res) => {
@@ -37,14 +37,6 @@ const register = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    const token = req.header("auth-token");
-
-    const errors = validateTokenData(token);
-
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).json(errors);
-    }
-
     const response = await authService.getUser(req.user);
     res.status(201).send(response);
   } catch (error) {

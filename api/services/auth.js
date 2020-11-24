@@ -53,13 +53,12 @@ const register = async ({ username, email, password }) => {
 
 const getUser = async ({ id, email }) => {
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email }, attributes: ["id", "email", "username"] });
 
     if (!user) {
       return new errors.NotFoundError("User not found");
     }
 
-    user.password = undefined;
     return user;
   } catch (error) {
     return error;
