@@ -1,10 +1,12 @@
 const express = require("express");
-const useSocket = require("socket.io");
 const cors = require("cors");
+const useSocket = require("socket.io");
 
 const sequelize = require("./database");
 
 const auth = require("./api/routes/auth");
+const chatRoom = require("./api/controllers/chatRoom");
+const { openConnection } = require("./api/controllers/chatRoom");
 
 const app = express();
 const server = require("http").Server(app);
@@ -28,6 +30,17 @@ app.use(cors());
 app.use(express.json({ extended: false }));
 
 app.use("/api/auth", auth);
+
+io.on("connection", (socket) => {
+  // openConnection(socket)
+  console.log(`User connected ${socket.id}`);
+
+  socket.on("message", (data) => {
+    console.log(data);
+
+    socket.send({user: "Server", text: data});
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 
