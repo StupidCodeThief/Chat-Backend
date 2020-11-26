@@ -6,7 +6,6 @@ const { jwtHelper, hashHelper } = require("../helpers");
 
 const login = async ({ email, password }) => {
   const user = await User.findOne({ where: { email } });
-
   if (!user) {
     return new errors.NotFoundError("User not found");
   }

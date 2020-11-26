@@ -1,10 +1,8 @@
 const { roomService } = require("../services");
 
-const connectToRoom = async (req, res) => {
+const getMessages = async (req, res) => {
   try {
-    const response = await roomService.connectRoom(
-      ({ roomId, password, email } = req.body)
-    );
+    const response = await roomService.getMessages(req.params.id);
     res.status(201).send(response);
   } catch (error) {
     console.error(error.message);
@@ -12,4 +10,4 @@ const connectToRoom = async (req, res) => {
   }
 };
 
-module.exports = { connectToRoom };
+module.exports = { getMessages };

@@ -1,24 +1,17 @@
 const jwt = require("jsonwebtoken");
 
 const errors = require("./errorHandlers/index");
-const { User } = require("../../database/models/User");
+const { Messages } = require("../../database/models/Messages");
 const { jwtHelper, hashHelper } = require("../helpers");
 
-const connectRoom = async ({ roomId, password, email }) => {
+const getMessages = async (roomId) => {
   try {
-    const user = await User.findOne({
-      where: { email },
-      attributes: ["id", "email", "username"],
-    });
+    const prevMessages = await Messages.findAll({ where: { room: roomId } });
 
-    if (!user) {
-      return new errors.NotFoundError("User not found");
-    }
-
-    return user;
+    return prevMessages;
   } catch (error) {
     return error;
   }
 };
 
-module.exports = { connectRoom };
+module.exports = { getMessages };

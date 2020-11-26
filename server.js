@@ -42,6 +42,7 @@ io.on("connection", (socket) => {
 
   socket.on("JOIN:ROOM", async (data) => {
     const user_id = data.user.id;
+    const username = data.user.username;
     let room_id;
     try {
       const name = data.roomId;
@@ -54,7 +55,6 @@ io.on("connection", (socket) => {
       }
 
       room_id = room.dataValues.room_id;
-      const user_id = data.user.id;
 
       const isOnline = await UsersInRooms.findOne({
         where: {
@@ -63,29 +63,29 @@ io.on("connection", (socket) => {
         },
       });
       if (!isOnline) {
+        console.log(username, " online");
         await UsersInRooms.create({ room_id, user_id });
       }
     } catch (error) {
-      console.log(data);
       console.error(error);
     }
 
+    const prevMessages = await Messages.findAll({
+      where: { room: room_id },
+    });
+    socket.emit("PREW:MSG", prevMessages);
+
     socket.join(room_id);
 
-    socket.on("UPDATE:MSG", async () => {
-      console.log("here")
-      const prevMessages = await Messages.findAll({ where: { room: room_id } });
-      const msg = prevMessages.map((message) => {
-        return message.dataValues;
-      });
-      socket.emit("SET:MSG", msg);
-      console.log(msg);
-    });
-
-    socket.to(room_id).send({ user: user_id, text: "Now in chat" });
+    socket.to(room_id).send({ user: username, text: "Now in chat" });
 
     socket.on("message", async (data) => {
-      const message = { user: user_id, room: room_id, message: data };
+      const message = {
+        user: user_id,
+        room: room_id,
+        text: data,
+        username: username,
+      };
       try {
         const isOnline = await UsersInRooms.findOne({
           where: {
@@ -96,7 +96,9 @@ io.on("connection", (socket) => {
 
         if (isOnline) {
           await Messages.create(message);
-          socket.to(room_id).broadcast.send({ user: user_id, text: data });
+          socket
+            .to(room_id)
+            .broadcast.send({ user: user_id, text: data, username: username });
         }
       } catch (error) {
         console.error(error);
@@ -104,6 +106,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("EXIT:ROOM", async () => {
+      console.log(username, " exit");
       await UsersInRooms.destroy({ where: { user_id, room_id } });
       socket.leave(room_id);
       console.log("Exit from ", room_id);
@@ -111,9 +114,10 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", async () => {
+      console.log(username, " exit");
+      await UsersInRooms.destroy({ where: { user_id, room_id } });
       socket.leave(room_id);
       socket.to(room_id).send({ user: user_id, text: "Leave chat" });
-      await UsersInRooms.destroy({ where: { user_id, room_id } });
     });
   });
 });

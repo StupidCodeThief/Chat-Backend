@@ -18,10 +18,14 @@ const Messages = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    message: {
+    text: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    }
   },
   {
     timestamps: false,

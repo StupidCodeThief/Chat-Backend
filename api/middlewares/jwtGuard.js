@@ -3,7 +3,7 @@ const config = require("config");
 
 const {
   UnauthorizedError,
-  TokenNotValidError,
+  TokenNotValid,
 } = require("../services/errorHandlers");
 
 const jwtGuard = (req, res, next) => {
@@ -19,7 +19,7 @@ const jwtGuard = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    throw new TokenNotValidError();
+    throw new TokenNotValid();
   }
 };
 
