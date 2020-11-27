@@ -25,7 +25,11 @@ const Messages = sequelize.define(
     username: {
       type: DataTypes.STRING,
       allowNull: false,
-    }
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
   },
   {
     timestamps: false,

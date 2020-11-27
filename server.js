@@ -1,126 +1,19 @@
 const express = require("express");
 const cors = require("cors");
-const useSocket = require("socket.io");
 
 const sequelize = require("./database");
-const { Room } = require("./database/models/Room");
-const { User } = require("./database/models/User");
-const { UsersInRooms } = require("./database/models/UsersInRooms");
-const { Messages } = require("./database/models/Messages");
 
 const auth = require("./api/routes/auth");
-const chatRoom = require("./api/routes/chatRoom");
 
 const app = express();
 const server = require("http").Server(app);
-const io = useSocket(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    allowedHeaders: [
-      "Origin",
-      "Accept",
-      "X-Requested-With",
-      "Content-Type",
-      "Access-Control-Request-Method",
-      "Access-Control-Request-Headers",
-    ],
-    credentials: true,
-  },
-});
+module.exports = { server };
+const socketConnect = require("./api/controllers/chatRoom");
 
 app.use(cors());
 app.use(express.json({ extended: false }));
 
 app.use("/api/auth", auth);
-app.use("/api", chatRoom);
-
-io.on("connection", (socket) => {
-  // openConnection(socket)
-
-  console.log(`User connected ${socket.id}`);
-
-  socket.on("JOIN:ROOM", async (data) => {
-    const user_id = data.user.id;
-    const username = data.user.username;
-    let room_id;
-    try {
-      const name = data.roomId;
-      const password = data.password;
-
-      let room = await Room.findOne({ where: { name } });
-
-      if (!room) {
-        room = await Room.create({ name, password });
-      }
-
-      room_id = room.dataValues.room_id;
-
-      const isOnline = await UsersInRooms.findOne({
-        where: {
-          room_id: room.dataValues.room_id,
-          user_id: data.user.id,
-        },
-      });
-      if (!isOnline) {
-        console.log(username, " online");
-        await UsersInRooms.create({ room_id, user_id });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
-    const prevMessages = await Messages.findAll({
-      where: { room: room_id },
-    });
-    socket.emit("PREW:MSG", prevMessages);
-
-    socket.join(room_id);
-
-    socket.to(room_id).send({ user: username, text: "Now in chat" });
-
-    socket.on("message", async (data) => {
-      const message = {
-        user: user_id,
-        room: room_id,
-        text: data,
-        username: username,
-      };
-      try {
-        const isOnline = await UsersInRooms.findOne({
-          where: {
-            room_id,
-            user_id,
-          },
-        });
-
-        if (isOnline) {
-          await Messages.create(message);
-          socket
-            .to(room_id)
-            .broadcast.send({ user: user_id, text: data, username: username });
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    });
-
-    socket.on("EXIT:ROOM", async () => {
-      console.log(username, " exit");
-      await UsersInRooms.destroy({ where: { user_id, room_id } });
-      socket.leave(room_id);
-      console.log("Exit from ", room_id);
-      socket.to(room_id).send({ user: user_id, text: "Leave chat" });
-    });
-
-    socket.on("disconnect", async () => {
-      console.log(username, " exit");
-      await UsersInRooms.destroy({ where: { user_id, room_id } });
-      socket.leave(room_id);
-      socket.to(room_id).send({ user: user_id, text: "Leave chat" });
-    });
-  });
-});
 
 const PORT = process.env.PORT || 5000;
 
