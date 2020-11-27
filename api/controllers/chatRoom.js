@@ -1,10 +1,5 @@
 const useSocket = require("socket.io");
 
-const { Room } = require("../../database/models/Room");
-// const { User } = require("../../database/models/User");
-const { UsersInRooms } = require("../../database/models/UsersInRooms");
-const { Messages } = require("../../database/models/Messages");
-
 const { roomService } = require("../services");
 const { server } = require("../../server");
 
