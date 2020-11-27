@@ -14,7 +14,7 @@ const jwtGuard = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, config.get("jwtSecret"));
+    const decoded = jwt.verify(token, process.env.JWTSECRET);
 
     req.user = decoded;
     next();
