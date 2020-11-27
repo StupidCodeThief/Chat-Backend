@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
@@ -21,6 +22,6 @@ server.listen(PORT, () => {
   sequelize.authenticate().then(() => {
     console.log("DB connected");
   });
-
+  
   console.log(`Server runnig at: ${PORT}`);
 });
