@@ -15,7 +15,7 @@ const corsOptions = {
   allowedHeaders: "*",
 };
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json({ extended: false }));
 
 app.use("/api/auth", auth);
