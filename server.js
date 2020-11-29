@@ -11,6 +11,10 @@ const server = require("http").Server(app);
 module.exports = { server };
 const socketConnect = require("./api/controllers/chatRoom");
 
+const corsOptions = {
+  allowedHeaders: "*",
+};
+
 app.use(cors());
 app.use(express.json({ extended: false }));
 
