@@ -15,7 +15,6 @@ const login = async (req, res) => {
   }
 
   const response = await authService.login(req.body);
-  console.log(response)
   res.status(201).send(response);
 };
 

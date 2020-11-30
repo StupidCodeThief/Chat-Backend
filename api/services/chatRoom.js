@@ -22,7 +22,11 @@ const joinRoom = async ({ roomId, password, user }) => {
 
     if (!isOnline) {
       console.log(user.username, " online");
-      await UsersInRooms.create({ room_id, user_id: user.id });
+      await UsersInRooms.create({
+        room_id,
+        user_id: user.id,
+        username: user.username,
+      });
     }
 
     return room;
@@ -71,4 +75,22 @@ const disconnectUser = async (user_id, room_id) => {
   }
 };
 
-module.exports = { joinRoom, getMessages, saveMessage, disconnectUser };
+const getOnlineUsers = async (room_id) => {
+  try {
+    const online = await UsersInRooms.findAll({
+      where: { room_id },
+      attributes: ["user_id", "username"],
+    });
+    return online;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+module.exports = {
+  joinRoom,
+  getMessages,
+  saveMessage,
+  disconnectUser,
+  getOnlineUsers,
+};

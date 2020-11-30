@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const config = require("config");
 
 const {
   UnauthorizedError,
@@ -8,7 +7,7 @@ const {
 
 const jwtGuard = (req, res, next) => {
   const token = req.header("auth-token");
-
+  
   if (!token) {
     throw new UnauthorizedError();
   }
