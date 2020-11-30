@@ -27,6 +27,7 @@ const socketConnect = io.on("connection", (socket) => {
     const username = data.user.username;
     let room_id;
     let prevMessages;
+    let onlineUsers;
     try {
       const room = await roomService.joinRoom(data);
       room_id = room.dataValues.room_id;
@@ -38,9 +39,18 @@ const socketConnect = io.on("connection", (socket) => {
 
     socket.emit("PREW:MSG", prevMessages);
 
+    try {
+      onlineUsers = await roomService.getOnlineUsers(room_id);
+      console.log(onlineUsers);
+    } catch (error) {
+      console.error(error);
+    }
+
     socket.join(room_id);
 
     socket.to(room_id).send({ username, text: "Now in chat" });
+    socket.to(room_id).broadcast.emit("ONLINE:NOW", onlineUsers);
+    socket.emit("ONLINE:NOW", onlineUsers);
 
     socket.on("message", async (data) => {
       const message = {
@@ -50,7 +60,7 @@ const socketConnect = io.on("connection", (socket) => {
         username: username,
         date: new Date(),
       };
-      
+
       try {
         const newMessage = await roomService.saveMessage(message);
         if (newMessage) {
