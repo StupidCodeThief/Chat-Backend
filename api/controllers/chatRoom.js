@@ -53,7 +53,6 @@ const socketConnect = io.on("connection", (socket) => {
       
       try {
         const newMessage = await roomService.saveMessage(message);
-        console.log(newMessage.dataValues.date);
         if (newMessage) {
           socket
             .to(room_id)
