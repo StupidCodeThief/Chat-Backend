@@ -1,6 +1,6 @@
 const useSocket = require("socket.io");
 
-const { roomService } = require("../services");
+const { roomService, messagesService } = require("../services");
 const { server } = require("../../server");
 
 const io = useSocket(server, {
@@ -19,8 +19,31 @@ const io = useSocket(server, {
   },
 });
 
+const socketId = new Map();
+
 const socketConnect = io.on("connection", (socket) => {
   console.log(`User connected ${socket.id}`);
+
+  socket.on("login", (user) => {
+    socketId.set(user.id, socket.id);
+    console.log(socketId);
+  });
+
+  socket.on("private:message", async (message) => {
+    const newMessage = await messagesService.sendMessage(message);
+    console.log(newMessage);
+  });
+
+  socket.on("get:messages", async (userID) => {
+    const messages = await messagesService.getMessages(userID);
+    socket.emit("MSG:LIST", messages)
+  });
+
+  socket.on("get:correspondence", async (data) => {
+    const messages = await messagesService.getCorrespondence(data);
+    console.log(messages);
+    socket.emit("PREW:MSG", messages);
+  });
 
   socket.on("JOIN:ROOM", async (data) => {
     const user_id = data.user.id;
@@ -41,7 +64,6 @@ const socketConnect = io.on("connection", (socket) => {
 
     try {
       onlineUsers = await roomService.getOnlineUsers(room_id);
-      console.log(onlineUsers);
     } catch (error) {
       console.error(error);
     }
@@ -86,6 +108,7 @@ const socketConnect = io.on("connection", (socket) => {
       await roomService.disconnectUser(user_id, room_id);
       socket.leave(room_id);
       socket.to(room_id).send({ user: user_id, text: "Leave chat" });
+      console.log(socketId);
     });
   });
 });

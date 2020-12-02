@@ -1,5 +1,4 @@
 const { Room } = require("../../database/models/Room");
-// const { User } = require("../../database/models/User");
 const { UsersInRooms } = require("../../database/models/UsersInRooms");
 const { Messages } = require("../../database/models/Messages");
 
