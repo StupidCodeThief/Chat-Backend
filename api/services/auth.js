@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
 
 const errors = require("./errorHandlers/index");
 const { User } = require("../../database/models/User");
@@ -52,7 +53,10 @@ const register = async ({ username, email, password }) => {
 
 const getUser = async ({ id, email }) => {
   try {
-    const user = await User.findOne({ where: { email }, attributes: ["id", "email", "username"] });
+    const user = await User.findOne({
+      where: { email },
+      attributes: ["id", "email", "username"],
+    });
 
     if (!user) {
       return new errors.NotFoundError("User not found");
@@ -64,4 +68,21 @@ const getUser = async ({ id, email }) => {
   }
 };
 
-module.exports = { register, login, getUser };
+const getUsers = async (user) => {
+  try {
+    const users = await User.findAll({
+      where: { id: { [Op.ne]: user.id } },
+      attributes: ["id", "email", "username"],
+    });
+
+    if (!users) {
+      return new errors.NotFoundError("Users not found");
+    }
+
+    return users;
+  } catch (error) {
+    return error;
+  }
+};
+
+module.exports = { register, login, getUser, getUsers };

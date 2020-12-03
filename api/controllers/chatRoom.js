@@ -1,6 +1,6 @@
 const useSocket = require("socket.io");
 
-const { roomService } = require("../services");
+const { roomService, messagesService } = require("../services");
 const { server } = require("../../server");
 
 const io = useSocket(server, {
@@ -19,14 +19,38 @@ const io = useSocket(server, {
   },
 });
 
+const socketId = new Map();
+
 const socketConnect = io.on("connection", (socket) => {
   console.log(`User connected ${socket.id}`);
+
+  socket.on("login", (user) => {
+    socketId.set(user.id, socket.id);
+  });
+
+  socket.on("private:message", async (message) => {
+    await messagesService.sendMessage(message);
+    
+    const recipient = socketId.get(message.recipient_id);
+    if (recipient) socket.broadcast.emit("new:message");
+  });
+
+  socket.on("get:messages", async (userID) => {
+    const messages = await messagesService.getMessages(userID);
+    socket.emit("MSG:LIST", messages);
+  });
+
+  socket.on("get:correspondence", async (data) => {
+    const messages = await messagesService.getCorrespondence(data);
+    socket.emit("PREW:MSG", messages);
+  });
 
   socket.on("JOIN:ROOM", async (data) => {
     const user_id = data.user.id;
     const username = data.user.username;
     let room_id;
     let prevMessages;
+    let onlineUsers;
     try {
       const room = await roomService.joinRoom(data);
       room_id = room.dataValues.room_id;
@@ -38,9 +62,17 @@ const socketConnect = io.on("connection", (socket) => {
 
     socket.emit("PREW:MSG", prevMessages);
 
+    try {
+      onlineUsers = await roomService.getOnlineUsers(room_id);
+    } catch (error) {
+      console.error(error);
+    }
+
     socket.join(room_id);
 
     socket.to(room_id).send({ username, text: "Now in chat" });
+    socket.to(room_id).broadcast.emit("ONLINE:NOW", onlineUsers);
+    socket.emit("ONLINE:NOW", onlineUsers);
 
     socket.on("message", async (data) => {
       const message = {
@@ -50,10 +82,9 @@ const socketConnect = io.on("connection", (socket) => {
         username: username,
         date: new Date(),
       };
-      
+
       try {
         const newMessage = await roomService.saveMessage(message);
-        console.log(newMessage.dataValues.date);
         if (newMessage) {
           socket
             .to(room_id)
@@ -77,6 +108,7 @@ const socketConnect = io.on("connection", (socket) => {
       await roomService.disconnectUser(user_id, room_id);
       socket.leave(room_id);
       socket.to(room_id).send({ user: user_id, text: "Leave chat" });
+      console.log(socketId);
     });
   });
 });

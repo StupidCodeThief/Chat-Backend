@@ -1,24 +1,36 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../index");
 
-const UsersInRooms = sequelize.define(
-  "users_in_rooms",
+const PrivateMessages = sequelize.define(
+  "private_messages",
   {
-    id: {
+    message_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
     },
-    room_id: {
+    sender_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    user_id: {
+    recipient_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    username: {
+    text: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    sender_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    recipient_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -28,4 +40,4 @@ const UsersInRooms = sequelize.define(
   }
 );
 
-module.exports = { UsersInRooms };
+module.exports = { PrivateMessages };
