@@ -26,6 +26,14 @@ const PrivateMessages = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
+    sender_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    recipient_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     timestamps: false,

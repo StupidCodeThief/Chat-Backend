@@ -26,22 +26,22 @@ const socketConnect = io.on("connection", (socket) => {
 
   socket.on("login", (user) => {
     socketId.set(user.id, socket.id);
-    console.log(socketId);
   });
 
   socket.on("private:message", async (message) => {
-    const newMessage = await messagesService.sendMessage(message);
-    console.log(newMessage);
+    await messagesService.sendMessage(message);
+    
+    const recipient = socketId.get(message.recipient_id);
+    if (recipient) socket.broadcast.emit("new:message");
   });
 
   socket.on("get:messages", async (userID) => {
     const messages = await messagesService.getMessages(userID);
-    socket.emit("MSG:LIST", messages)
+    socket.emit("MSG:LIST", messages);
   });
 
   socket.on("get:correspondence", async (data) => {
     const messages = await messagesService.getCorrespondence(data);
-    console.log(messages);
     socket.emit("PREW:MSG", messages);
   });
 
