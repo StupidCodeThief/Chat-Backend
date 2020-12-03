@@ -1,5 +1,5 @@
+require("dotenv").config();
 const express = require("express");
-const useSocket = require("socket.io");
 const cors = require("cors");
 
 const sequelize = require("./database");
@@ -8,23 +8,14 @@ const auth = require("./api/routes/auth");
 
 const app = express();
 const server = require("http").Server(app);
-const io = useSocket(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    allowedHeaders: [
-      "Origin",
-      "Accept",
-      "X-Requested-With",
-      "Content-Type",
-      "Access-Control-Request-Method",
-      "Access-Control-Request-Headers",
-    ],
-    credentials: true,
-  },
-});
+module.exports = { server };
+const socketConnect = require("./api/controllers/chatRoom");
 
-app.use(cors());
+const corsOptions = {
+  allowedHeaders: ["auth-token", "Content-Type"]
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ extended: false }));
 
 app.use("/api/auth", auth);
@@ -35,6 +26,6 @@ server.listen(PORT, () => {
   sequelize.authenticate().then(() => {
     console.log("DB connected");
   });
-
+  
   console.log(`Server runnig at: ${PORT}`);
 });

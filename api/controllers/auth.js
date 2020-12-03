@@ -1,12 +1,8 @@
-const bcrypt = require("bcryptjs");
-const config = require("config");
-
 const { authService } = require("../services");
 
 const {
   validateLoginData,
   validateRegisterData,
-  validateTokenData,
 } = require("../validation/auth");
 
 const login = async (req, res) => {
@@ -45,4 +41,14 @@ const getUser = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getUser };
+const getUsers = async (req, res) => {
+  try {
+    const response = await authService.getUsers(req.user);
+    res.status(201).send(response);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server error");
+  }
+};
+
+module.exports = { login, register, getUser, getUsers };

@@ -1,12 +1,11 @@
 const { Sequelize } = require("sequelize");
-const config = require("config");
 
 const sequelize = new Sequelize(
-  config.get("dbName"),
-  config.get("usernameDb"),
-  config.get("passwordDb"),
+  process.env.DBNAME,
+  process.env.USERNAMEDB,
+  process.env.PASSWORDDB,
   {
-    host: config.get("hostDb"),
+    host: process.env.HOSTDB,
     dialect: "postgres",
     dialectOptions: {
       ssl: {
